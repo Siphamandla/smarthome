@@ -50,15 +50,17 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      # HTTP Router
-      - "traefik.http.routers.homeassistant.rule=Host(`${HA_HOST:-192.168.68.122}`)"
+      # HTTP Router - match any host (catch-all)
+      - "traefik.http.routers.homeassistant.rule=PathPrefix(`/`)"
       - "traefik.http.routers.homeassistant.entrypoints=web"
       - "traefik.http.routers.homeassistant.service=homeassistant"
-      # HTTPS Router with self-signed certificate
-      - "traefik.http.routers.homeassistant-secure.rule=Host(`${HA_HOST:-192.168.68.122}`)"
+      - "traefik.http.routers.homeassistant.priority=1"
+      # HTTPS Router with self-signed certificate - match any host
+      - "traefik.http.routers.homeassistant-secure.rule=PathPrefix(`/`)"
       - "traefik.http.routers.homeassistant-secure.entrypoints=websecure"
       - "traefik.http.routers.homeassistant-secure.tls=true"
       - "traefik.http.routers.homeassistant-secure.service=homeassistant"
+      - "traefik.http.routers.homeassistant-secure.priority=1"
       # Service configuration
       - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
       # Specify which Docker network to use
