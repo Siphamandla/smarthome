@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     autoconf \
     build-essential \
     libopenjp2-7 \
-    libtiff5 \
+    libtiff6 \
     libturbojpeg0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
