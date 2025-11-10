@@ -13,9 +13,6 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --log.level=INFO
-      # HTTP to HTTPS redirect (optional - comment out to allow both HTTP and HTTPS)
-      # - --entrypoints.web.http.redirections.entryPoint.to=websecure
-      # - --entrypoints.web.http.redirections.entryPoint.scheme=https
     ports:
       - "80:80"      # HTTP
       - "443:443"    # HTTPS
@@ -50,17 +47,18 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      # HTTP Router - match any host (catch-all)
-      - "traefik.http.routers.homeassistant.rule=PathPrefix(`/`)"
+      # HTTP Router - match hostname or IP
+      - "traefik.http.routers.homeassistant.rule=Host(`${HA_HOST:-homeassistant.localhost}`) || Host(`192.168.68.122`) || Host(`localhost`)"
       - "traefik.http.routers.homeassistant.entrypoints=web"
       - "traefik.http.routers.homeassistant.service=homeassistant"
-      - "traefik.http.routers.homeassistant.priority=1"
-      # HTTPS Router with self-signed certificate - match any host
-      - "traefik.http.routers.homeassistant-secure.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.homeassistant.middlewares=redirect-to-https"
+      # Redirect middleware
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      # HTTPS Router with self-signed certificate
+      - "traefik.http.routers.homeassistant-secure.rule=Host(`${HA_HOST:-homeassistant.localhost}`) || Host(`192.168.68.122`) || Host(`localhost`)"
       - "traefik.http.routers.homeassistant-secure.entrypoints=websecure"
       - "traefik.http.routers.homeassistant-secure.tls=true"
       - "traefik.http.routers.homeassistant-secure.service=homeassistant"
-      - "traefik.http.routers.homeassistant-secure.priority=1"
       # Service configuration
       - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
       # Specify which Docker network to use
