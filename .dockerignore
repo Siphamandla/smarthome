@@ -1,0 +1,23 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Configuration
+.env
+.env.*
+
+# Home Assistant data
+homeassistant/
+
+# Traefik data
+traefik/
+
+# Scripts
+setup.sh
+
+# macOS
+.DS_Store

@@ -1,0 +1,8 @@
+FROM traefik:v2.11
+
+# Add labels for metadata
+LABEL maintainer="Smart Home Setup"
+LABEL description="Traefik reverse proxy for Home Assistant"
+
+# Traefik will be configured via docker-compose command section
+# This Dockerfile allows for future customization if needed
