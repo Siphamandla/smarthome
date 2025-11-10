@@ -25,16 +25,15 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /config
 
-# Install compatible versions to fix josepy/acme compatibility issue
-RUN pip3 install --no-cache-dir \
-    'josepy>=1.14.0' \
-    'acme>=2.7.0' \
-    'cryptography>=41.0.0'
-
 # Install Home Assistant
 RUN pip3 install --no-cache-dir \
     homeassistant \
     psutil
+
+# Fix josepy/acme compatibility issue by upgrading to compatible versions
+RUN pip3 install --no-cache-dir --upgrade \
+    'josepy==1.14.0' \
+    'acme==2.11.0'
 
 # Expose port
 EXPOSE 8123
@@ -42,8 +41,8 @@ EXPOSE 8123
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+# Health check - give more time for Home Assistant to start
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
     CMD curl -f http://localhost:8123 || exit 1
 
 # Create entrypoint script
