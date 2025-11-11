@@ -13,12 +13,18 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --log.level=INFO
+      # Let's Encrypt Certificate Resolver
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-support@metrofleet.co.za}
+      - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
     ports:
       - "80:80"      # HTTP
       - "443:443"    # HTTPS
       - "8080:8080"  # Traefik Dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/acme.json  # Certificate storage
     networks:
       - proxy
     labels:

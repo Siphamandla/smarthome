@@ -14,12 +14,10 @@ http:
     - 172.16.0.0/12  # Docker network range
     - 192.168.0.0/16  # Local network
 
-# Eufy Security (requires HACS installation)
-# Install HACS first, then install Eufy Security integration from HACS
-eufy_security:
-  username: !secret eufy_username
-  password: !secret eufy_password
-  country: ZA  # South Africa
+# Note: Modern integrations are configured through the UI
+# After installing from HACS (if needed):
+# - EufyHome or Eufy Security: Settings → Devices & Services → Add Integration → Search "Eufy"
+# - Sonoff LAN: Settings → Devices & Services → Add Integration → Search "Sonoff LAN"
 
 # Template sensors
 sensor:
