@@ -28,13 +28,24 @@ echo "✓ Containers started"
 echo ""
 
 # Wait for Home Assistant to initialize
-echo "[4/5] Waiting for Home Assistant to initialize (30 seconds)..."
+echo "[4/6] Waiting for Home Assistant to initialize (30 seconds)..."
 sleep 30
 echo "✓ Initialization complete"
 echo ""
 
+# Install HACS if not already installed
+echo "[5/6] Checking HACS installation..."
+if ! docker exec homeassistant test -d /config/custom_components/hacs; then
+  echo "HACS not found. Installing HACS..."
+  docker exec homeassistant sh -c 'wget -O - https://get.hacs.xyz | bash -' || echo "⚠️  HACS installation failed (may need manual setup)"
+  echo "✓ HACS installed"
+else
+  echo "✓ HACS already installed"
+fi
+echo ""
+
 # Copy configuration template on every deployment
-echo "[5/5] Configuring Home Assistant..."
+echo "[6/6] Configuring Home Assistant..."
 docker exec homeassistant sh -c '
   echo "Copying configuration.yaml from template..."
   cp /config/configuration.yaml.template /config/configuration.yaml
