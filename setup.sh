@@ -103,6 +103,95 @@ install_docker() {
     read -p "Press Enter to return to menu..."
 }
 
+# Prepare Traefik function
+prepare_traefik() {
+    echo "=================================="
+    echo "Prepare Traefik"
+    echo "=================================="
+    echo ""
+    
+    # Check if Docker is installed
+    if ! command -v docker &> /dev/null; then
+        echo "⚠️  Error: Docker is not installed!"
+        echo "    Please install Docker first (option 2)"
+        echo ""
+        read -p "Press Enter to return to menu..."
+        return
+    fi
+    
+    # Check if Docker Compose is installed
+    if ! docker compose version &> /dev/null; then
+        echo "⚠️  Error: Docker Compose is not installed!"
+        echo "    Please install Docker Compose first (option 3)"
+        echo ""
+        read -p "Press Enter to return to menu..."
+        return
+    fi
+    
+    # Step 1: Setup acme.json
+    echo "[1/3] Setting up acme.json for Let's Encrypt certificates..."
+    ACME_FILE="./acme.json"
+    
+    if [ -f "$ACME_FILE" ]; then
+        echo "⚠️  acme.json already exists (permissions: $(stat -c '%a' "$ACME_FILE" 2>/dev/null || stat -f '%Lp' "$ACME_FILE"))"
+        read -p "Reset it? (y/n): " reset_choice
+        if [ "$reset_choice" = "y" ] || [ "$reset_choice" = "Y" ]; then
+            rm -f "$ACME_FILE"
+            touch "$ACME_FILE"
+            chmod 600 "$ACME_FILE"
+            echo "✓ acme.json reset with permissions 600"
+        else
+            chmod 600 "$ACME_FILE" 2>/dev/null || true
+            echo "✓ Ensured correct permissions on existing acme.json"
+        fi
+    else
+        touch "$ACME_FILE"
+        chmod 600 "$ACME_FILE"
+        echo "✓ acme.json created with permissions 600"
+    fi
+    echo ""
+    
+    # Step 2: Stop Traefik if running
+    echo "[2/3] Stopping existing Traefik container..."
+    if docker ps -a --format '{{.Names}}' | grep -q '^traefik$'; then
+        docker compose stop traefik
+        docker compose rm -f traefik
+        echo "✓ Traefik container stopped and removed"
+    else
+        echo "ℹ️  No existing Traefik container found"
+    fi
+    echo ""
+    
+    # Step 3: Rebuild and start Traefik
+    echo "[3/3] Rebuilding and starting Traefik..."
+    docker compose build --no-cache traefik
+    docker compose up -d traefik
+    echo "✓ Traefik rebuilt and started"
+    echo ""
+    
+    # Show status
+    echo "Waiting for Traefik to start..."
+    sleep 3
+    echo ""
+    echo "Traefik Status:"
+    docker compose ps traefik
+    echo ""
+    
+    echo "=================================="
+    echo "Traefik Preparation Complete!"
+    echo "=================================="
+    echo ""
+    echo "📝 ACME.json: $ACME_FILE (permissions: $(stat -c '%a' "$ACME_FILE" 2>/dev/null || stat -f '%Lp' "$ACME_FILE"))"
+    echo "🌐 Traefik Dashboard: http://localhost:8080"
+    echo ""
+    echo "💡 Next steps:"
+    echo "   1. Set ACME_EMAIL in .env file"
+    echo "   2. Forward ports 80 and 443 on your router"
+    echo "   3. Set up domain name for your API"
+    echo ""
+    read -p "Press Enter to return to menu..."
+}
+
 # Docker Compose Installation function
 install_docker_compose() {
     echo "=================================="
@@ -207,9 +296,10 @@ show_menu() {
     echo "  1) Enable SSH"
     echo "  2) Install Docker"
     echo "  3) Install Docker Compose"
-    echo "  4) Update System Packages"
-    echo "  5) Show System Information"
-    echo "  6) Run All Setup Tasks"
+    echo "  4) Prepare Traefik (ACME + Rebuild)"
+    echo "  5) Update System Packages"
+    echo "  6) Show System Information"
+    echo "  7) Run All Setup Tasks"
     echo "  0) Exit"
     echo ""
     echo "=================================="
@@ -227,6 +317,8 @@ run_all() {
     install_docker
     echo ""
     install_docker_compose
+    echo ""
+    prepare_traefik
     
     echo ""
     echo "=================================="
@@ -239,7 +331,7 @@ run_all() {
 # Main loop
 while true; do
     show_menu
-    read -p "Enter your choice [0-6]: " choice
+    read -p "Enter your choice [0-7]: " choice
     echo ""
     
     case $choice in
@@ -253,12 +345,15 @@ while true; do
             install_docker_compose
             ;;
         4)
-            update_system
+            prepare_traefik
             ;;
         5)
-            show_info
+            update_system
             ;;
         6)
+            show_info
+            ;;
+        7)
             run_all
             ;;
         0)
