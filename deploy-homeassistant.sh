@@ -33,20 +33,12 @@ sleep 30
 echo "✓ Initialization complete"
 echo ""
 
-# Copy configuration template if needed
+# Copy configuration template on every deployment
 echo "[5/5] Configuring Home Assistant..."
 docker exec homeassistant sh -c '
-  if [ ! -f /config/configuration.yaml ]; then
-    echo "Creating configuration.yaml from template..."
-    cp /config/configuration.yaml.template /config/configuration.yaml
-    echo "✓ Configuration created"
-  elif ! grep -q "use_x_forwarded_for:" /config/configuration.yaml; then
-    echo "Updating configuration.yaml with template..."
-    cp /config/configuration.yaml.template /config/configuration.yaml
-    echo "✓ Configuration updated"
-  else
-    echo "✓ Configuration already exists"
-  fi
+  echo "Copying configuration.yaml from template..."
+  cp /config/configuration.yaml.template /config/configuration.yaml
+  echo "✓ Configuration updated from template"
 '
 echo ""
 
