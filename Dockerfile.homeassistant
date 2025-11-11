@@ -39,10 +39,7 @@ COPY configuration.yaml.template /tmp/configuration.yaml.template
 # Install Home Assistant with all dependencies
 RUN pip3 install --no-cache-dir \
     homeassistant \
-    psutil \
-    hass-frontend \
-    zlib-ng \
-    isal
+    psutil
 
 # Fix josepy/acme compatibility issue by upgrading to compatible versions
 RUN pip3 install --no-cache-dir --upgrade \
