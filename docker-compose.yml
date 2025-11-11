@@ -13,11 +13,15 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --log.level=INFO
-      # Let's Encrypt Certificate Resolver
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      # Let's Encrypt Certificate Resolver with Cloudflare DNS Challenge
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
       - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-support@metrofleet.co.za}
       - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
+    environment:
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     ports:
       - "80:80"      # HTTP
       - "443:443"    # HTTPS
@@ -34,7 +38,9 @@ services:
       - "traefik.http.routers.dashboard.service=api@internal"
 
   homeassistant:
-    image: ghcr.io/home-assistant/home-assistant:stable
+    build:
+      context: .
+      dockerfile: Dockerfile.homeassistant
     container_name: homeassistant
     restart: unless-stopped
     privileged: true
