@@ -25,6 +25,9 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /config
 
+# Copy configuration template
+COPY configuration.yaml.template /tmp/configuration.yaml.template
+
 # Install Home Assistant
 RUN pip3 install --no-cache-dir \
     homeassistant \
@@ -50,6 +53,12 @@ RUN echo '#!/bin/bash\n\
 # Ensure /config directory has correct permissions\n\
 chown -R root:root /config 2>/dev/null || true\n\
 chmod -R 755 /config 2>/dev/null || true\n\
+\n\
+# Copy configuration template if configuration.yaml does not exist\n\
+if [ ! -f /config/configuration.yaml ]; then\n\
+  echo "Creating initial configuration.yaml from template..."\n\
+  cp /tmp/configuration.yaml.template /config/configuration.yaml\n\
+fi\n\
 \n\
 # Start Home Assistant\n\
 exec python3 -m homeassistant --config /config\n\

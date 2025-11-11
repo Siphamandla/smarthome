@@ -1,0 +1,28 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.16.0.0/12  # Docker network range
+    - 192.168.0.0/16  # Local network
+
+# Eufy devices via Tuya
+tuya:
+  username: !secret eufy_username
+  password: !secret eufy_password
+  country_code: "27"
+
+# Sonoff devices via eWeLink
+sonoff:
+  username: !secret sonoff_username
+  password: !secret sonoff_password
+  mode: cloud
