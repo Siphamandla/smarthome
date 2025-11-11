@@ -1,7 +1,6 @@
 # Loads default set of integrations. Do not remove.
 default_config:
 
-# Load frontend themes from the themes folder
 frontend:
   themes: !include_dir_merge_named themes
 
@@ -12,9 +11,45 @@ scene: !include scenes.yaml
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 172.16.0.0/12  # Docker network range
-    - 192.168.0.0/16  # Local network
+    - 172.16.0.0/12
+    - 192.168.0.0/16
 
-# Note: Tuya and Sonoff integrations are now configured through the UI
-# Go to: Settings → Devices & Services → Add Integration
-# Search for "Tuya" or "Sonoff" and follow the setup wizard
+# Template sensors
+sensor:
+  - platform: template
+    sensors:
+      example_sensor:
+        friendly_name: "Example Sensor"
+        value_template: "{{ states('sensor.temperature') }}"
+
+# Input helpers
+input_boolean:
+  example_toggle:
+    name: Example Toggle
+    initial: off
+
+input_number:
+  example_number:
+    name: Example Number
+    initial: 20
+    min: 0
+    max: 100
+    step: 1
+
+# Zones
+zone:
+  - name: Home
+    latitude: -26.2041
+    longitude: 28.0473
+    radius: 100
+
+# Recorder (database configuration)
+recorder:
+  purge_keep_days: 7
+  db_url: !secret db_url  # Optional: use external database
+
+# Logger
+logger:
+  default: info
+  logs:
+    homeassistant.components.mqtt: debug
