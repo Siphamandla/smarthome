@@ -15,14 +15,6 @@ http:
     - 172.16.0.0/12  # Docker network range
     - 192.168.0.0/16  # Local network
 
-# Eufy devices via Tuya
-tuya:
-  username: !secret eufy_username
-  password: !secret eufy_password
-  country_code: "27"
-
-# Sonoff devices via eWeLink
-sonoff:
-  username: !secret sonoff_username
-  password: !secret sonoff_password
-  mode: cloud
+# Note: Tuya and Sonoff integrations are now configured through the UI
+# Go to: Settings → Devices & Services → Add Integration
+# Search for "Tuya" or "Sonoff" and follow the setup wizard
