@@ -206,6 +206,12 @@ docker compose up -d
 - **Weather**: Weather forecasts
 - **Mobile App**: iOS/Android companion app
 
+## Additional Guides
+
+- [Cloudflare DNS Setup](./CLOUDFLARE_SETUP.md) - Configure Let's Encrypt with Cloudflare DNS challenge
+- [DNS Configuration Explanation](./DNS_SETUP.md) - Understanding your DNS setup with Cloudflare
+- [TP-Link Deco Port Forwarding](./DECO_PORT_FORWARDING.md) - Set up port forwarding on Deco routers
+
 ## Support
 
 - [Home Assistant Documentation](https://www.home-assistant.io/docs/)

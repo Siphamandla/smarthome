@@ -13,22 +13,12 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --log.level=INFO
-      # Let's Encrypt Certificate Resolver with Cloudflare DNS Challenge
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
-      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-support@metrofleet.co.za}
-      - --certificatesresolvers.letsencrypt.acme.storage=/acme.json
-    environment:
-      - CF_API_EMAIL=${CF_API_EMAIL}
-      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     ports:
       - "80:80"      # HTTP
       - "443:443"    # HTTPS
       - "8080:8080"  # Traefik Dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./acme.json:/acme.json  # Certificate storage
     networks:
       - proxy
     labels:
@@ -48,7 +38,6 @@ services:
       - TZ=Africa/Johannesburg
     volumes:
       - ./homeassistant:/config
-      - ./configuration.yaml.template:/config/configuration.yaml.template:ro
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
     devices:
@@ -62,11 +51,8 @@ services:
       - "traefik.http.routers.homeassistant.rule=Host(`${HA_HOST:-homeassistant.localhost}`) || Host(`192.168.68.122`) || Host(`localhost`)"
       - "traefik.http.routers.homeassistant.entrypoints=web"
       - "traefik.http.routers.homeassistant.service=homeassistant"
-      - "traefik.http.routers.homeassistant.middlewares=redirect-to-https"
-      # Redirect middleware
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       # HTTPS Router with self-signed certificate
-      - "traefik.http.routers.homeassistant-secure.rule=Host(`${HA_HOST:-homeassistant.localhost}`) || Host(`192.168.68.122`) || Host(`localhost`)"
+      - "traefik.http.routers.homeassistant-secure.rule=Host(`${HA_HOST:-192.168.68.122}`)"
       - "traefik.http.routers.homeassistant-secure.entrypoints=websecure"
       - "traefik.http.routers.homeassistant-secure.tls=true"
       - "traefik.http.routers.homeassistant-secure.service=homeassistant"
