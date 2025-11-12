@@ -28,9 +28,7 @@ services:
       - "traefik.http.routers.dashboard.service=api@internal"
 
   homeassistant:
-    build:
-      context: .
-      dockerfile: Dockerfile.homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
     container_name: homeassistant
     restart: unless-stopped
     privileged: true
