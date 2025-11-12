@@ -38,19 +38,22 @@ services:
       - ./homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
-    devices:
-      - /dev/ttyUSB0:/dev/ttyUSB0  # Optional: Remove if not using USB devices
-      - /dev/ttyACM0:/dev/ttyACM0  # Optional: Remove if not using USB devices
+    # devices:
+    #   - /dev/ttyUSB0:/dev/ttyUSB0  # Optional: Remove if not using USB devices
+    #   - /dev/ttyACM0:/dev/ttyACM0  # Optional: Remove if not using USB devices
     networks:
       - proxy
     labels:
       - "traefik.enable=true"
-      # HTTP Router - match hostname or IP
-      - "traefik.http.routers.homeassistant.rule=Host(`${HA_HOST:-homeassistant.localhost}`) || Host(`192.168.68.122`) || Host(`localhost`)"
+      # HTTP Router - match all domains and IPs
+      - "traefik.http.routers.homeassistant.rule=Host(`${HA_HOST:-homeassistant.localhost}`) || Host(`192.168.68.128`) || Host(`localhost`)"
       - "traefik.http.routers.homeassistant.entrypoints=web"
       - "traefik.http.routers.homeassistant.service=homeassistant"
+      - "traefik.http.routers.homeassistant.middlewares=redirect-to-https"
+      # Redirect middleware
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       # HTTPS Router with self-signed certificate
-      - "traefik.http.routers.homeassistant-secure.rule=Host(`${HA_HOST:-192.168.68.122}`)"
+      - "traefik.http.routers.homeassistant-secure.rule=Host(`${HA_HOST:-homeassistant.localhost}`) || Host(`192.168.68.128`) || Host(`localhost`)"
       - "traefik.http.routers.homeassistant-secure.entrypoints=websecure"
       - "traefik.http.routers.homeassistant-secure.tls=true"
       - "traefik.http.routers.homeassistant-secure.service=homeassistant"
